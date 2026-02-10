@@ -21,36 +21,37 @@ public class LeaderElection implements Watcher {
      * new method created to handle node volunteer to leadership
      *
      */
-    public void volunteerForLeaderShip(){
+    public void volunteerForLeaderShip() {
         // c -> stands for candidate
         String zNodePrefix = ELECTION_NAMESPACE + "/c_";
         //The znode will be deleted upon the client's disconnect, and its name will be appended with a monotonically increasing number
         try {
-            String zNodeFullPath = zooKeeper.create(zNodePrefix, new byte[]{}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
-            System.out.println("Volunteered for leadership: "+zNodeFullPath);
+            String zNodeFullPath = zooKeeper.create(zNodePrefix, new byte[] {}, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+            System.out.println("Volunteered for leadership: " + zNodeFullPath);
             //extracting current znode name from full path
-            currentZnodeName = zNodeFullPath.substring(zNodeFullPath.lastIndexOf("/")+1);
+            currentZnodeName = zNodeFullPath.substring(zNodeFullPath.lastIndexOf("/") + 1);
         }
         catch (KeeperException e) {
-            System.err.println("Error while creating znode: "+zNodePrefix);
+            System.err.println("Error while creating znode: " + zNodePrefix);
             throw new RuntimeException(e);
         }
         catch (InterruptedException e) {
-            System.err.println("Interrupted while creating znode: "+zNodePrefix);
+            System.err.println("Interrupted while creating znode: " + zNodePrefix);
             throw new RuntimeException(e);
         }
     }
 
-    public void close(){
+    public void close() {
         try {
             zooKeeper.close();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     public void run() throws InterruptedException {
-        synchronized (zooKeeper){
+        synchronized (zooKeeper) {
             zooKeeper.wait();
         }
     }
@@ -64,10 +65,11 @@ public class LeaderElection implements Watcher {
     public void process(WatchedEvent watchedEvent) {
         switch (watchedEvent.getType()) {
             case None:
-                if(watchedEvent.getState() == Event.KeeperState.SyncConnected) {
+                if (watchedEvent.getState() == Event.KeeperState.SyncConnected) {
                     System.out.println("Connected to Zookeeper");
-                }else{
-                    synchronized (zooKeeper){
+                }
+                else {
+                    synchronized (zooKeeper) {
                         System.out.println("Disconnected from Zookeeper");
                         zooKeeper.notifyAll();
                     }

@@ -41,11 +41,13 @@
                             <goal>single</goal> <!-- Execute the "single" goal -->
                         </goals>
                         <configuration>
+                            <!-- Main artifact = runnable fat JAR (no classifier) so java -jar target/...jar works -->
+                            <appendAssemblyId>false</appendAssemblyId>
                             <!-- Use a predefined descriptor for a JAR with dependencies -->
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <!-- Optional: Configuration for an executable JAR -->
+                            <!-- Executable JAR: Main-Class in manifest -->
                             <archive>
                                 <manifest>
                                     <mainClass>org.java.App</mainClass>

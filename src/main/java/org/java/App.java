@@ -13,6 +13,7 @@ public class App {
         leaderElection.connectToZookeeper();
         leaderElection.volunteerForLeaderShip();
         leaderElection.electLeader();
+        leaderElection.watchTargetZnode();
         leaderElection.run();
         leaderElection.close();
         System.out.println("Disconnected from Zookeeper");

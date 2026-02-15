@@ -1,6 +1,7 @@
 package org.java;
 
 import org.apache.zookeeper.*;
+import org.apache.zookeeper.data.Stat;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -14,9 +15,34 @@ public class LeaderElection implements Watcher {
     private ZooKeeper zooKeeper;
     private static final String ELECTION_NAMESPACE = "/election";
     private String currentZnodeName;
+    private static final String TARGET_ZNODE = "/target_znode";
+
 
     public void connectToZookeeper() throws IOException {
         this.zooKeeper = new ZooKeeper(ZOOKEEPER_ADDRESS, SESSION_TIMEOUT, this);
+    }
+
+    public void watchTargetZnode() {
+        try {
+            Stat exists = zooKeeper.exists(TARGET_ZNODE, this);
+            if (null == exists) {
+                return;
+            }
+            System.out.println("Target znode exists. Watching it for changes.");
+            byte[] data = zooKeeper.getData(TARGET_ZNODE, this, exists);
+            System.out.println("Data read from znode: " + new String(data));
+            List<String> children = zooKeeper.getChildren(TARGET_ZNODE, this);
+            if (!children.isEmpty()) {
+                System.out.println("Children of znode: " + children);
+            }
+        }
+        catch (KeeperException e) {
+            System.err.println("KeeperException: " + e);
+        }
+        catch (InterruptedException e) {
+            System.err.println("InterruptedException: " + e);
+        }
+
     }
 
     /**
@@ -145,6 +171,7 @@ public class LeaderElection implements Watcher {
      */
     @Override
     public void process(WatchedEvent watchedEvent) {
+        System.out.println("Event received: " + watchedEvent.getType());
         switch (watchedEvent.getType()) {
             case None:
                 if (watchedEvent.getState() == Event.KeeperState.SyncConnected) {
@@ -157,10 +184,17 @@ public class LeaderElection implements Watcher {
                     }
                 }
             case NodeCreated:
+                System.out.println("Node created: " + watchedEvent.getPath());
+                break;
             case NodeDeleted:
+                System.out.println("Node deleted: " + watchedEvent.getPath());
             case NodeDataChanged:
+                System.out.println(">" + watchedEvent.getPath() + "");
             case NodeChildrenChanged:
+                System.out.println("Children changed for node: " + watchedEvent.getPath());
                 break;
         }
+        watchTargetZnode();
+
     }
 }

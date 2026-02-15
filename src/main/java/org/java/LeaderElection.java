@@ -24,27 +24,28 @@ public class LeaderElection implements Watcher {
      * is interrupted, the exception is caught and its stack trace
      * is printed.
      */
-    public void close(){
+    public void close() {
         try {
             zooKeeper.close();
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     /**
      * Waits indefinitely for a notification to resume execution.
-     *
+     * <p>
      * This method uses a synchronized block to acquire a lock on the ZooKeeper instance,
      * and the thread executing this method will be blocked until it is notified.
      * It is typically used to keep the application running until the ZooKeeper
      * session disconnects or another thread explicitly notifies it.
      *
      * @throws InterruptedException if the thread waiting on the ZooKeeper instance
-     *         is interrupted while waiting.
+     *                              is interrupted while waiting.
      */
     public void run() throws InterruptedException {
-        synchronized (zooKeeper){
+        synchronized (zooKeeper) {
             zooKeeper.wait();
         }
     }
@@ -54,7 +55,7 @@ public class LeaderElection implements Watcher {
      * Processes the events received from ZooKeeper.
      * This method is triggered whenever a watched event occurs in the ZooKeeper ensemble,
      * such as changes in connection state or changes to watched nodes.
-     *
+     * <p>
      * The method handles:
      * - Connection events (None): Logs the connection status and handles disconnection notifications.
      * - Node-related events (NodeCreated, NodeDeleted, NodeDataChanged, NodeChildrenChanged): Currently, these are ignored.
@@ -66,10 +67,11 @@ public class LeaderElection implements Watcher {
     public void process(WatchedEvent watchedEvent) {
         switch (watchedEvent.getType()) {
             case None:
-                if(watchedEvent.getState() == Event.KeeperState.SyncConnected) {
+                if (watchedEvent.getState() == Event.KeeperState.SyncConnected) {
                     System.out.println("Connected to Zookeeper");
-                }else{
-                    synchronized (zooKeeper){
+                }
+                else {
+                    synchronized (zooKeeper) {
                         System.out.println("Disconnected from Zookeeper");
                         zooKeeper.notifyAll();
                     }

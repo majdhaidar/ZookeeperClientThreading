@@ -1,5 +1,7 @@
 package org.java;
 
+import org.apache.zookeeper.KeeperException;
+
 import java.io.IOException;
 
 /**
@@ -7,9 +9,9 @@ import java.io.IOException;
  *
  */
 public class App {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         System.out.println("Hello Zookeeper!");
-        switch (args[0]){
+        /*switch (args[0]){
             case "leadereletction":
                     leaderElectionDemon();
                 break;
@@ -18,10 +20,17 @@ public class App {
                 break;
             default:
                 System.out.println("Invalid argument");
-        }
+        }*/
+        watcherDemo();
     }
 
-    private static void watcherDemo() {
+    private static void watcherDemo() throws IOException, InterruptedException, KeeperException {
+        WatcherDemo watcherDemo = new WatcherDemo();
+        watcherDemo.connectToZookeeper();
+        //watcherDemo.createFirstTargetNode();
+        watcherDemo.watchTargetZnode();
+        watcherDemo.run();
+        watcherDemo.close();
     }
 
     /**

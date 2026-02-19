@@ -1,5 +1,7 @@
 package org.java;
 
+import org.apache.zookeeper.KeeperException;
+
 import java.io.IOException;
 
 /**
@@ -7,8 +9,37 @@ import java.io.IOException;
  *
  */
 public class App {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         System.out.println("Hello Zookeeper!");
+        //leaderElectionDemon();
+        watcherDemo();
+    }
+
+    private static void watcherDemo() throws IOException, InterruptedException, KeeperException {
+        WatcherDemo watcherDemo = new WatcherDemo();
+        watcherDemo.connectToZookeeper();
+        //watcherDemo.createFirstTargetNode();
+        watcherDemo.watchTargetZnode();
+        watcherDemo.run();
+        watcherDemo.close();
+    }
+
+    /**
+     * Initializes and orchestrates the leader election process in a Zookeeper cluster.
+     * This method performs the following steps:
+     * 1. Establishes a connection to the Zookeeper service.
+     * 2. Submits the current node as a candidate for leadership by creating an ephemeral sequential znode.
+     * 3. Executes the leader election process to determine if the current node is the leader or a participant.
+     * 4. Waits indefinitely to maintain the Zookeeper session and to observe Zookeeper events, enabling
+     *    the node to respond to leadership changes or other cluster activities.
+     * 5. Closes the Zookeeper connection upon exiting the process.
+     *
+     * If any step fails, appropriate exceptions are propagated.
+     *
+     * @throws IOException           if an error occurs while connecting to Zookeeper.
+     * @throws InterruptedException  if the thread is interrupted during any blocking operation.
+     */
+    private static void leaderElectionDemon() throws IOException, InterruptedException {
         LeaderElection leaderElection = new LeaderElection();
         leaderElection.connectToZookeeper();
         leaderElection.volunteerForLeaderShip();

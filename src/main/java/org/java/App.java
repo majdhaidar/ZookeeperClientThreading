@@ -11,16 +11,7 @@ import java.io.IOException;
 public class App {
     public static void main(String[] args) throws IOException, InterruptedException, KeeperException {
         System.out.println("Hello Zookeeper!");
-        /*switch (args[0]){
-            case "leadereletction":
-                    leaderElectionDemon();
-                break;
-            case "watcherdemo":
-                    watcherDemo();
-                break;
-            default:
-                System.out.println("Invalid argument");
-        }*/
+        //leaderElectionDemon();
         watcherDemo();
     }
 
